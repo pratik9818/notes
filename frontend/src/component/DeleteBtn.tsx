@@ -1,21 +1,30 @@
-import { notes } from "../store/notes";
-import { notestypo } from "../typo/notestypo";
-import { useRecoilState } from 'recoil'
+import useGetToken from "../packages/GetToken";
+import { deletenote as deletenoteatom, notes, searchresultstate } from "../store/notes";
+import { useRecoilState ,useSetRecoilState} from 'recoil'
+
 export default function DeleteBtn({noteid}) {
+  const token = useGetToken()
   const [allnotes , setAllnotes] = useRecoilState(notes)
-  async function deletenote() {
+  const setNotedelete = useSetRecoilState(deletenoteatom)
+  const [searchnotes,setSearchnotes] = useRecoilState(searchresultstate)
+  async function deletenotefun() {
     const index =  allnotes?.findIndex(element => element.noteid == noteid)
-    console.log(index);
     const result =  await fetch(`http://localhost:3001/api/deletenote/${noteid}`,{
       method:'DELETE',
       headers:{
-          Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJwcmF0aWtzaW5naDIxMjAwMEBnbWFpbC5jb20iLCJpYXQiOjE3MTgyMTE2NTcsImV4cCI6MTcxODU3MTY1N30.8BEBSU1MmqTFERMnvK_KJ7PdE5uYY53Ol3NWwHAU9_s'
+        Authorization:  `${token}`
       }
     })
     const res = await result.json()
     console.log(res);
+    if(searchnotes.length){
+      const index =  searchnotes?.findIndex(element => element.noteid == noteid)
+      const updatedNotes = searchnotes.filter((_, i) => i !== index);
+      setSearchnotes(updatedNotes);
+    }
     const updatedNotes = allnotes.filter((_, i) => i !== index);
   setAllnotes(updatedNotes);
+  setNotedelete(noteid)
   }
-  return <img onClick={deletenote} className="w-4 h-4 cursor-pointer" src="/src/assets/delete.png" alt="" />
+  return <img id="delete" onClick={deletenotefun} className="w-5 h-5 cursor-pointer" src="/src/assets/delete.png" alt="" />
 }

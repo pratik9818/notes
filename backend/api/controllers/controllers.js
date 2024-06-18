@@ -8,14 +8,14 @@ exports.signupuser = async (req,res,next)=>{
         const client = await database();
         const password = req.body.password;
         const email = req.body.email;
+        console.log(password);
         const isemailvalidate = emailvalidation(email)
-        const ispasswordvalidate = passwordvalidation(password)
-        if(!isemailvalidate || !ispasswordvalidate){
-        return next({statuscode:400, message:'fill proper email and password'})
+        if(!isemailvalidate ){
+              return next({statuscode:400, message:'fill proper email',error:true})
         }
        let isuserpersent =  await isemialpersent(email)
        if(isuserpersent){
-        next({statuscode:401, message:'user already persent'})
+        next({statuscode:401, message:'user already persent',error:true})
         return
        }
         const insertuser = `INSERT INTO notesusers (email , password) VALUES ($1 , $2)` //need to chnage in column constraints
@@ -24,7 +24,7 @@ exports.signupuser = async (req,res,next)=>{
         await client.query(insertuser, values)
         const token = generateToken(email)
         res.setHeader('Authorization', `Bearer ${token}`)
-        res.status(201).json({message:'successfully signup', status:201})
+        res.status(200).json({message:'successfully login', status:200, token:`Bearer ${token},`,useremail:email})
        } catch (error) {
         next({statuscode:500, message:'something went worng',error:error})
        }
@@ -32,12 +32,12 @@ exports.signupuser = async (req,res,next)=>{
 
 exports.signinuser = async(req,res,next)=>{
         const client = await database();
-        const password = req.body.password;
-        const email = req.body.email;
+        const password = req.query.password;
+        const email = req.query.email;
         const isemailvalidate = emailvalidation(email)
         const ispasswordvalidate = passwordvalidation(password)
         if(!isemailvalidate || !ispasswordvalidate){
-              return next({statuscode:400, message:'fill proper email and password'})
+              return next({statuscode:400, message:'fill proper email and password',error:true})
         }
         const getuser = `SELECT password FROM notesusers WHERE email = '${email}'`
         try {
@@ -50,13 +50,13 @@ exports.signinuser = async(req,res,next)=>{
                         } else if (result) {
                             const token = generateToken(email)
                             res.setHeader('Authorization', `Bearer ${token}`)
-                          res.status(200).json({message:'successfully login', status:200})
+                          res.status(200).json({message:'successfully login', status:200, token:`Bearer ${token}`,useremail:email})
                         } else {
-                                next({statuscode:401, message:'password is wrong'})
+                                next({statuscode:401, message:'password is wrong',error:true})
                         }
                     });
           }else{
-                next({statuscode:401, message:'email is wrong'})
+                next({statuscode:401, message:'email is wrong',error:true})
           }
           
         } catch (error) {
@@ -163,7 +163,7 @@ exports.getallnotenames = async (req,res,next)=>{
        try {
         const result = await client.query(getallnote)
         if (result.rowCount === 0) {
-               return next({statuscode:204, message:'no any notes persent',error:error})
+               return next({statuscode:204, message:'no any notes persent'})
 
               }
         res.status(200).json({data:result.rows , rowcount : result.rowCount , status:200})

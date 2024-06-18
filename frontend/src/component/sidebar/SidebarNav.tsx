@@ -1,12 +1,11 @@
+import AddNote from "./AddNote"
 import SidebarIcon from "./SidebarIcon"
-import UserProfile from "./UserProfile"
-import Notification from "./Notification"
 export default  function SidebarNav() {
+   const size = 'w-6 h-6 cursor-pointer'
   return (
-    <div className="flex items-center my-3 ">
-      <UserProfile/>
-      <Notification/>
+    <div className="flex justify-between">
       <SidebarIcon/>
+      <AddNote size={size}/>
     </div>
   )
 }

@@ -5,11 +5,11 @@ exports.verifyjwttoken = (req,res,next) =>{
     const token = req.headers.authorization.split(' ')[1]
     jwt.verify(token,secret_key , (err, decoded)=>{
         if(!token){
-            return res.status(401).json({ message: 'Authentication failed. No token provided.' });
+            return res.status(401).json({ message: 'Authentication failed. No token provided.',error:'no token' });
         }
 
         if(err){
-            return res.status(401).json({ message: 'Authentication failed. Invalid token.' });
+            return res.status(401).json({ message: 'Authentication failed. Invalid token.',error:'token expiry' });
         }
         req.email = decoded.userId;
         next()

@@ -23,7 +23,6 @@ exports.passwordvalidation = (password) => {
   const passwordschema = z.coerce.string().min(10)
   try {
     passwordschema.parse(password);
-
     return true;
   } catch (error) {
     console.log(error);

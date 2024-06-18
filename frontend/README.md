@@ -42,5 +42,33 @@ folder structure
 
  bugs/pending work
  1-when reload with notes/id then notessection do not render -cause - mainstate
- 2-when click on addnote then again click on addnote then new page should open and prv one save
- 3- when i write note very fast first time then it render the new note name again 
+ 2-when click on addnote then again click on addnote then new page should open and prv one save -done
+ 3- when i write note very fast first time then it render the new note name again ---- done
+ 4- new add note , rmove border form prv note
+ 5- some things need to done of when user save / update note name - imp
+ 6- copy and paste listeners
+ 7- notes name exceeding char
+ 8-on search show description also
+ 9-user profile
+ 10- logout btn
+ 11- check use login or not
+ 12 - home route -=
+ 13 - deafult page
+ 14-scroll styleing -
+ 15- logoutn btn
+ 16- add icons
+ 17- dark mode - 
+ 18- when search then rename notes name then come to default , chnaged note name do not reflect /show , old name showing
+ 19-delete and edit btn wrap in modal
+ 20- new name should be diffent from old name then send req, to serve
+21 - resposive to mobile
+22- when click outside the notes , name was't saved
+23- when go the this route app/:id then noted whicj open do no get hover/bg-c
+
+ //error handlinh
+ //desscription max and min char
+//note name max and min char 
+//when no notes peresnt or no seatch result get then show 'no result'
+
+//in server
+- need to chnage how db send notes like new notes come first , iressetive of condition

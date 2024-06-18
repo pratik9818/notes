@@ -13,6 +13,6 @@ app.use((err,req,res,next)=>{
     console.error(err);
     const statuscode = err.statuscode || 500;
     const message = statuscode === 500 ? 'Internal server error' : err.message;
-    res.status(err.statuscode).json({message : err.message})
+    res.status(err.statuscode).json({message : err.message, error:true})
 })
 app.listen(port , ()=>console.log(`listing at ${port}`))

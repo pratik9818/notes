@@ -1,42 +1,61 @@
-import { useEffect } from 'react'
-import { notes } from '../../store/notes'
-import { useRecoilState } from 'recoil'
+import { useEffect, useState } from 'react'
+import { islogin, issearch, notes, searchresultstate, tokenmodalstate, trackactivenotecolor } from '../../store/notes'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import NotesfilesName from './NotesfilesName'
-export default function NotesSection() {
+import GetToken from '../../packages/GetToken'
+import TokenModal from '../modal/TokeExpiry'
+import { useNavigate } from 'react-router-dom'
+import WaitingIcon from '../../packages/WaitingIcon'
+ function NotesSection() {
+    const navigate = useNavigate()
     const [allnotes, setNotes] = useRecoilState(notes)
+    const searchresult = useRecoilValue(searchresultstate)
+    const token = GetToken()
+    const issearchstate  = useRecoilValue(issearch)
+    const setTokeninfo = useSetRecoilState(islogin)
     
-    useEffect(()=>{
+    useEffect(()=>{        
         async function getallnotename() {
             const result = await fetch('http://localhost:3001/api/getnote/allnotenames',{
             headers:{
-                Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJwcmF0aWtzaW5naDIxMjAwMEBnbWFpbC5jb20iLCJpYXQiOjE3MTgyMTE2NTcsImV4cCI6MTcxODU3MTY1N30.8BEBSU1MmqTFERMnvK_KJ7PdE5uYY53Ol3NWwHAU9_s'
+                Authorization:`${token}`
             }
         })
         const res = await result.json()
-        // console.log(res.data);
+        console.log(res);
+        
+            if(res.error){
+                 if(res.error == 'token expiry') {
+                    setTokeninfo({
+                        islogin:false,
+                        reason:'Your session has expiry please login',
+                        message:'token expiry'
+                      })
+                    navigate('/app/token')
+                }
+            }
             setNotes(res.data)
         }
         getallnotename()
-    },[])
+    },[token])
+    console.log('k');
+    
   return (
-    <div className='my-8 border-2'>
-        {
-            allnotes.length ?allnotes?.map((element) =>{
+    <div className='my-3 overflow-y-auto h-3/4 scrollbar'>
+        {!issearchstate ? 
+            allnotes.length ? allnotes?.map((element) =>{
                 if(!element) return
                 return <NotesfilesName key={element.noteid} notename={element.notename} noteid={element.noteid}/>
-            }) :'loading'
-        }
+            }) :<WaitingIcon/>
+        :   searchresult.length ? searchresult?.map((element) =>{
+            if(!element) return
+            return <div>
+                <NotesfilesName key={element.noteid} notename={element.notename} noteid={element.noteid}/>
+                <div className='border w-full text-sm'>{element?.notedescription?.substring(0,50)}</div>
+            </div>
+        }) : <WaitingIcon/>}
     </div>
   )
 }
-
-// async function sendreq(){
-//     const result = await fetch('http://localhost:3001/api/getnote/allnotenames',{
-//         headers:{
-//             Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJwcmF0aWtzaW5naDIxMjAwMEBnbWFpbC5jb20iLCJpYXQiOjE3MTY2OTY5NDcsImV4cCI6MTcxNjcwNDE0N30.5YFEJfC2PvwSpI4wJSGvIqGagDkSWUfX5zLodwLOjSo'
-//         }
-//     })
-//     const f = await result.json()
-//     console.log(f);
-// }
+export default NotesSection
