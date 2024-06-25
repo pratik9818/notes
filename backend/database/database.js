@@ -2,7 +2,7 @@
 const {Client} = require('pg')
 
 async function connectdb(){
-    let url = 'postgresql://notes_owner:h4qdpgHmyv9e@ep-broad-waterfall-a1y3ykrr.ap-southeast-1.aws.neon.tech/note?sslmode=require'
+    let url = ''
     let client  = new Client({
       connectionString:  url
     })
