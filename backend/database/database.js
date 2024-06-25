@@ -36,7 +36,7 @@ console.log("Table created successfully!");
 }
 // connectdb()
 exports.database =  async function getClient() {
-    const client = new Client("postgresql://notes_owner:h4qdpgHmyv9e@ep-broad-waterfall-a1y3ykrr.ap-southeast-1.aws.neon.tech/note?sslmode=require");
+    const client = new Client("");
     await client.connect();
     return client;
 }
