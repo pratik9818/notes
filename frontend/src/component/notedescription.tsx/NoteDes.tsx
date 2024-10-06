@@ -1,8 +1,11 @@
 import {useState,useEffect, ChangeEvent,useRef, ClipboardEvent}from 'react'
 import { useParams,useNavigate} from 'react-router-dom'
-import { useRecoilState, useRecoilValue } from 'recoil'
-import { deletenote, notes, trackactivenotecolor } from '../../store/notes'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { alertstate, deletenote, device, notes, trackactivenotecolor } from '../../store/notes'
 import GetToken from '../../packages/GetToken'
+import {servername} from '../../servername'
+import { sidebardisplayState } from '../../store/modal'
+
 type descriptiontypo = string
 export default function NoteDes() {
   const token = GetToken()
@@ -13,15 +16,19 @@ export default function NoteDes() {
    const [currentnote ,setCurrentnote] = useRecoilState(trackactivenotecolor)
    const [description, setDescription] = useState<descriptiontypo>('')
    const [typing, setTyping ] = useState<NodeJS.Timeout | null>(null)
+   const setDisplaystate = useSetRecoilState(sidebardisplayState)
+   const devicetype = useRecoilValue(device)
+const [isdescriptionload , isDescriptionload] = useState<boolean>(false)
    const {id} = useParams()
-   const descriptionRef = useRef(description);
+  //  const descriptionRef = useRef(description);
    const updatetime = 2000
-    const index =  allnotes?.findIndex(element => element.noteid === id)
+   const index =  allnotes?.findIndex(element => element.noteid === id)
+  const setAlertstate = useSetRecoilState(alertstate)
     useEffect(()=>{
       if(currentnote == null){
         const targetelement =  document.getElementById(`${id}`)
         if(targetelement) {
-          targetelement.style.backgroundColor = 'rgb(226 232 240)'
+          targetelement.style.backgroundColor = '#71797E'
           setCurrentnote(targetelement)
         }
        }
@@ -35,40 +42,50 @@ export default function NoteDes() {
 
    useEffect(()=>{
     
+     if(devicetype === 'mobile'){
+          setDisplaystate('hidden')
+        }
     async function getdes() {
+      isDescriptionload(false)
        const isdescription = allnotes[index]?.notedescription
        
         if(!isdescription){
-         const result =  await fetch(`http://localhost:3001/api/getnote/notedescription/${id}`,{
+         const result =  await fetch(`${servername}/api/getnote/notedescription/${id}`,{
             headers:{
                 Authorization:  `${token}`
             }
           })
           const res = await result.json()
-          const resdes = res.data[0].notedescription
-          // console.log(resdes);
-          resdes ? setDescription(resdes) : setDescription('') 
-          
-          const updatednotes = [...allnotes]
-          
-          updatednotes[index] = {
-              ...updatednotes[index] ,
-              notedescription : resdes ? resdes :' '
+          if(res.status === 200){
+            const resdes = res.data[0].notedescription
+            resdes ? setDescription(resdes) : setDescription('') 
+            const updatednotes = [...allnotes]
+            updatednotes[index] = {
+                ...updatednotes[index] ,
+                notedescription : resdes ? resdes :' '
+            }
+            setNotes(updatednotes)
+          }else{
+            setAlertstate({
+              isalert:true,
+              alertname: res.message,
+              alertcolor:'bg-red-500'
+            })
           }
-          setNotes(updatednotes)
-        
     }
     else setDescription(isdescription)
-    
+    isDescriptionload(true)
     if(textarearef.current) textarearef.current.focus() //may be iterating feature
 }
     getdes()
-},[id])
+},[id , allnotes])  //it could be a bug in a future
 
 async function updatedescription(){
   const formData = new URLSearchParams();
-  formData.append('notedescription', descriptionRef.current);
-      const result =  await fetch(`http://localhost:3001/api/updatenote/notedescription/${id}`,{
+  if(textarearef.current?.value) formData.append('notedescription', textarearef.current?.value);
+  else formData.append('notedescription', ' ');
+
+      const result =  await fetch(`${servername}/api/updatenote/notedescription/${id}`,{
           method: 'PATCH',
           headers:{
               'Content-Type': 'application/x-www-form-urlencoded',
@@ -82,16 +99,28 @@ async function updatedescription(){
           const updatednotes = [...allnotes]
           updatednotes[index] = {
               ...updatednotes[index] ,
-              notedescription : descriptionRef.current ? description :' '
+              notedescription : description ? textarearef.current?.value :' '
           }
           setNotes(updatednotes)
+          setAlertstate({
+            isalert:true,
+            alertname: res.message,
+            alertcolor:'bg-green-500'
+          })
+        }else{
+          setAlertstate({
+            isalert:true,
+            alertname: res.message,
+            alertcolor:'bg-red-500'
+          })
         }
 }
 
 const textonchnage = (e:ChangeEvent<HTMLTextAreaElement>)=>{
   const value = e.target.value
   setDescription(value)
-  descriptionRef.current = value;
+  // descriptionRef.current = value;
+
   if(typing){
     clearTimeout(typing)
   }
@@ -101,26 +130,27 @@ const textonchnage = (e:ChangeEvent<HTMLTextAreaElement>)=>{
 
 setTyping(timeoutid)
 }
-const onpaste = (e:ClipboardEvent<HTMLTextAreaElement>)=>{
-  e.preventDefault()
-    const paste = e.clipboardData?.getData('text/plain')
-    setDescription( description + paste)
-    descriptionRef.current = description + paste;
-  if(typing){
-    clearTimeout(typing)
-  }
-  const timeoutid = setTimeout(() => {
-  updatedescription()
-}, updatetime);
+// const onpaste = (e:ClipboardEvent<HTMLTextAreaElement>)=>{
+//     const paste = e.clipboardData?.getData('text/plain')  //no need of it
+//     console.log(paste);
+//     const value = textarearef.current?.value ? textarearef.current?.value : description
+//     setDescription(value)
+//   if(typing){
+//     clearTimeout(typing)
+//   }
+//   const timeoutid = setTimeout(() => {
+//   updatedescription()
+// }, updatetime);
 
-setTyping(timeoutid)
-}
+// setTyping(timeoutid)
+// }
+
 
 
   return (
-    <div className='w-full' >
-       <textarea placeholder='Write here'  id='txtar' ref={textarearef} onPaste={onpaste} onChange={textonchnage} value={description} className='w-full h-full p-2 outline-none resize-none'>
-      </textarea>
+    <div className='w-full bg-dark text-textcolor' >
+    { !isdescriptionload ? <div className='h-full flex justify-center w-64 mx-auto py-64'>L O A D I N G . . . .</div>: <textarea placeholder='Write here'  id='txtar' ref={textarearef} onChange={textonchnage} value={description} className='w-full p-2 outline-none resize-none bg-dark scrollbar-thin h-[99%]'>
+      </textarea>}
     </div>
   )
 }

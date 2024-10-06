@@ -1,11 +1,14 @@
+import { useRecoilValue } from "recoil"
 import AddNote from "./AddNote"
 import SidebarIcon from "./SidebarIcon"
+import { sidebardisplayState } from "../../store/modal"
 export default  function SidebarNav() {
-   const size = 'w-6 h-6 cursor-pointer'
+  const displaystate = useRecoilValue(sidebardisplayState)
+   const size = 'w-7 h-7 cursor-pointer'
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between px-1 py-1">
       <SidebarIcon/>
-      <AddNote size={size}/>
+     { displaystate == 'block'? <AddNote size={size}/> :''}
     </div>
   )
 }

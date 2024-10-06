@@ -6,19 +6,15 @@ export default {
   ],
   theme: {
     extend: {
-      scrollbar: {
-        DEFAULT: {
-          '::-webkit-scrollbar': {
-            width: '4px',
-          },
-          '::-webkit-scrollbar-thumb': {
-            borderRadius: '4px',
-          },
-          '::-webkit-scrollbar-track': {
-          },
-        },
-      },
+    colors:{
+      dark:'#1E1E1E',
+      textcolor:'white',
+      bgnotename:'gray',
+      bordercolor:'gray',
+      notenamecolor:'black',
+    }
     },
   },
+  
   plugins: [],
 }

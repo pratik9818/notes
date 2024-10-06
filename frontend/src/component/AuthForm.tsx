@@ -3,6 +3,7 @@ import { ChangeEvent, useState, MouseEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { islogin } from "../store/notes";
+import { servername } from "../servername";
 const AuthForm = () => {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
@@ -62,12 +63,15 @@ const AuthForm = () => {
   }
   async function signin() {
     localStorage.removeItem("token");
+    localStorage.removeItem("email");
     const queryParams = new URLSearchParams({
       email: usercrenditials.email,
       password: usercrenditials.password,
+      last_login: new Date().toUTCString()
     }).toString();
+    
     const result = await fetch(
-      `http://localhost:3001/api/signin?${queryParams}`,
+      `${servername}/api/signin?${queryParams}`,
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -75,8 +79,6 @@ const AuthForm = () => {
       }
     );
     const res = await result.json();
-    console.log(res);
-
     if (res.error) {
       setErrormodal({
         error: true,
@@ -90,15 +92,17 @@ const AuthForm = () => {
       })
       localStorage.setItem("token", res.token);
       localStorage.setItem("email", res.useremail);
-
-      navigate("/app");
+      navigate("/");
     }
   }
   async function signup() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
     const formData = new URLSearchParams();
     formData.append("email", usercrenditials.email);
     formData.append("password", usercrenditials.password);
-    const result = await fetch(`http://localhost:3001/api/signup`, {
+    formData.append("last_login", new Date().toUTCString())
+    const result = await fetch(`${servername}/api/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -106,26 +110,25 @@ const AuthForm = () => {
       body: formData.toString(),
     });
     const res = await result.json();
-    console.log(res);
-
     if (res.error) {
       setErrormodal({
         error: true,
         errorstate: res.message,
       });
     } else {
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("email", res.useremail);
       setTokeninfo({
-        islogin:false,
+        islogin:true,
         reason:'user signup',
         message:'user is new'
       })
-        localStorage.setItem("token", res.token);
-        localStorage.setItem("email", res.useremail);
-        navigate("/app");
+       
+        navigate("/");
       }
   }
   return (
-    <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm m-auto my-14">
+    <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm m-auto my-14 text-black">
       {errormodal.error ? (
         <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg">
           <p className="font-semibold">Error:{errormodal.errorstate}</p>

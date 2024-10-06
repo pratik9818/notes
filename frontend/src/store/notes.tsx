@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { notestypo, searchnotestypo, tracknotetypo } from "../typo/notestypo";
+import { notestypo, searchnotestypo, tracknotetypo , alerttypo, sharemodalinfo } from "../typo/notestypo";
 
 export const notes = atom<notestypo[]>({
     key:'notes name and its noted id',
@@ -41,4 +41,34 @@ export const islogin = atom({
 export const tokenmodalstate = atom({
     key:'token expiry ',
     default:false
+})
+
+export const device = atom<null | string>({
+    key :"check device",
+    default:null
+})
+
+export const totalnotesnumber = atom<string>({
+    key :'last note created time',
+    default : '0'
+})
+
+export const alertstate = atom<alerttypo>({
+    key:'alert state',
+    default:{
+        isalert:false,
+        alertname:'none',
+        alertcolor:'none'
+    }
+})
+
+export const issharemodalopen = atom<sharemodalinfo>({
+    key:"share modal state handle",
+    default:{
+        modalopen:false,
+        sharenoteid:null,
+        accesstype:null,
+        share:null
+    }
+    
 })

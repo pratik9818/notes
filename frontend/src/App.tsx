@@ -1,6 +1,6 @@
 import './App.css'
 
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, useMatch} from "react-router-dom";
 import SideBar from './component/sidebar/SideBar'
 import NoteDes from './component/notedescription.tsx/NoteDes';
 import NewnoteDes from './component/notedescription.tsx/NewnoteDes';
@@ -11,19 +11,26 @@ import TokenModal from './component/modal/TokeExpiry';
 import GetToken from './packages/GetToken';
 import { useSetRecoilState } from 'recoil';
 import { islogin } from './store/notes';
+import AlertModal from './component/modal/AlertModal';
+import ShareModal from './component/modal/ShareModal';
+import ShowContent from './component/sharepage/ShowContent';
+
 export function App() {
-  return (
-     <div className='flex flex-col h-full'>
+  
+  return <div className='flex flex-col bg-dark text-textcolor '>
       <Router>
       <AppContent />
       </Router>
+      <AlertModal/>
+      <ShareModal/>
     </div>
-    
-  );
 }
 function AppContent() {
+  
   const location = useLocation();
-  const hideSidebar = location.pathname === '/app/auth' || location.pathname === '/app/token';
+  const match = useMatch('/app/sharenote/:id')
+  const hideSidebar = location.pathname === '/app/auth' || location.pathname === '/app/token' || match
+  
   const setTokeninfo = useSetRecoilState(islogin)
   const navigate = useNavigate()
   const token = GetToken()
@@ -38,9 +45,9 @@ function AppContent() {
     }
   },[])
   return (
-    <div className='flex h-full'>
-       {!hideSidebar && <SideBar/> }
+    <div className='flex h-full bg-dark text-textcolor'>
         {/* <Route path="/app/*" element={!hideSidebar && <SideBar/> } /> */}
+       {!hideSidebar && <SideBar/> }
       <Routes>
         <Route path="/" element={<DefaultPage />} />
         <Route path="/app/:id" element={<NoteDes />} />
@@ -49,6 +56,7 @@ function AppContent() {
         <Route path="/app/search" element={<DefaultPage />} />
         <Route path="/app/auth" element={<AuthForm />} />
         <Route path="/app/token" element={<TokenModal />} />
+        <Route path="/app/sharenote/:id" element={<ShowContent/>} />
       </Routes>
     </div>
   );

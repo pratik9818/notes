@@ -9,10 +9,10 @@ const AddNote = ({size}:sizetype)=> {
   const navigate = useNavigate()
   const [deleteState, setDeleteState] = useRecoilState(deletenote);
   const setIssearchstate  = useSetRecoilState(issearch)
-  function showandhideSidebar(){
+  function addnotefun(){
     setIssearchstate(false)
     if(prvrestate){
-      prvrestate.style.background = 'rgb(241 245 249)'
+      prvrestate.style.background = '#71797E'
       }
       if (deleteState) {
           setDeleteState(null);
@@ -20,7 +20,7 @@ const AddNote = ({size}:sizetype)=> {
     navigate(`/app/newnote`)
   }
   return (
-      <img onClick={showandhideSidebar} className={size} src="/assets/addicondark.png" alt="nav icon" />
+      <img onClick={addnotefun} className={`${size} invert`} src="/assets/addicondark.png" alt="nav icon" />
   )
 }
 export default AddNote

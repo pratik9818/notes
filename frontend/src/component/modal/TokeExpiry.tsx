@@ -13,7 +13,7 @@ const Modal = () => {
         navigate('/app/auth')
     }
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 text-black">
       <div className="bg-white p-6 rounded shadow-md text-center h-1/12">
         <p className="mb-4">{isuserlogin.reason}</p>
         <button
