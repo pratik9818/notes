@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { passwordvalidation } = require('../utils/validator');
 exports.passwordencrypt = async (req,res,next)=>{
     try {
