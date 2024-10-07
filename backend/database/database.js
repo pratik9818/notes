@@ -2,7 +2,7 @@
 const {Client} = require('pg')
 
 async function connectdb(){
-    let url = ''
+    let url = DATABASE_URL
     let client  = new Client({
       connectionString:  url
     })
@@ -36,7 +36,7 @@ console.log("Table created successfully!");
 }
 // connectdb()
 exports.database =  async function getClient() {
-    const client = new Client("");
+    const client = new Client(DATABASE_URL);
     await client.connect();
     return client;
 }
